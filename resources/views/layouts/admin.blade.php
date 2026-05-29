@@ -54,10 +54,37 @@
         <!-- Header -->
         <header class="bg-white shadow py-4 px-6 flex justify-between items-center no-print">
             <h1 class="text-2xl font-semibold text-gray-800">@yield('title')</h1>
-            <div class="flex items-center text-gray-600">
-                Halo, {{ auth()->user()->nama }}
+            <div class="flex items-center gap-6 text-gray-600">
+                <!-- Realtime Clock -->
+                <div class="text-right no-print">
+                    <div id="admin-clock" class="text-lg font-bold text-gray-800 tabular-nums"></div>
+                    <div id="admin-date" class="text-xs text-gray-400"></div>
+                </div>
+                <span class="text-sm font-medium">Halo, <strong>{{ auth()->user()->nama }}</strong></span>
             </div>
         </header>
+        <script>
+            (function() {
+                const hariIndo = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+                const bulanIndo = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                function updateAdminClock() {
+                    const now = new Date();
+                    const jam = String(now.getHours()).padStart(2,'0');
+                    const menit = String(now.getMinutes()).padStart(2,'0');
+                    const detik = String(now.getSeconds()).padStart(2,'0');
+                    const hari = hariIndo[now.getDay()];
+                    const tgl = now.getDate();
+                    const bulan = bulanIndo[now.getMonth()];
+                    const tahun = now.getFullYear();
+                    const clockEl = document.getElementById('admin-clock');
+                    const dateEl = document.getElementById('admin-date');
+                    if (clockEl) clockEl.textContent = jam + ':' + menit + ':' + detik;
+                    if (dateEl) dateEl.textContent = hari + ', ' + tgl + ' ' + bulan + ' ' + tahun;
+                }
+                updateAdminClock();
+                setInterval(updateAdminClock, 1000);
+            })();
+        </script>
 
         <!-- Content -->
         <main class="p-6 flex-1 bg-gray-50">

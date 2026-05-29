@@ -3,36 +3,74 @@
 @section('title', 'Laporan Penjualan')
 
 @section('content')
+@php
+    $bulanIndo = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+    ];
+@endphp
+
 <div class="print-header-report hidden mb-6 text-center">
     <h1 class="text-2xl font-bold text-gray-800">Laporan Penjualan (POS Master)</h1>
     <p class="text-sm text-gray-500">
         Periode: 
-        @if($filter === 'hari') Hari Ini @elseif($filter === 'minggu') Minggu Ini @elseif($filter === 'bulan') Bulan Ini @else Semua Penjualan @endif
+        @if($filterType === 'hari') 
+            Hari Ini 
+        @elseif($filterType === 'minggu') 
+            Minggu Ini 
+        @elseif($filterType === 'bulan') 
+            Bulan {{ $bulanIndo[$filterMonth] ?? $filterMonth }} {{ $filterYear }}
+        @elseif($filterType === 'tahun') 
+            Tahun {{ $filterYear }}
+        @else 
+            Semua Penjualan 
+        @endif
     </p>
-    <p class="text-xs text-gray-400 mt-1">Dicetak pada: {{ now()->format('d/m/Y H:i') }}</p>
+    <p class="text-xs text-gray-400 mt-1">Dicetak pada: <span id="print-timestamp"></span></p>
 </div>
 
 <!-- Filters & Export/Print Actions -->
-<div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 no-print">
-    <form action="{{ route('admin.reports.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
-        <label for="filter" class="text-sm font-bold text-gray-700">Periode:</label>
-        <select name="filter" id="filter" class="shadow-sm border border-gray-300 rounded-lg py-1.5 px-3 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
-            <option value="semua" {{ $filter === 'semua' ? 'selected' : '' }}>Semua Penjualan</option>
-            <option value="hari" {{ $filter === 'hari' ? 'selected' : '' }}>Hari Ini</option>
-            <option value="minggu" {{ $filter === 'minggu' ? 'selected' : '' }}>Minggu Ini</option>
-            <option value="bulan" {{ $filter === 'bulan' ? 'selected' : '' }}>Bulan Ini</option>
-        </select>
-        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 px-4 rounded-lg shadow-sm transition duration-200 text-sm cursor-pointer">
-            Filter
-        </button>
+<div class="mb-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 no-print w-full">
+    <form id="filter-form" action="{{ route('admin.reports.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2">
+            <label for="filter_type" class="text-xs font-bold text-gray-700">Filter:</label>
+            <select name="filter_type" id="filter_type" onchange="toggleFilterInputs()" class="shadow-sm border border-gray-300 rounded-lg py-1.5 px-3 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                <option value="semua" {{ $filterType === 'semua' ? 'selected' : '' }}>Semua Penjualan</option>
+                <option value="hari" {{ $filterType === 'hari' ? 'selected' : '' }}>Hari Ini</option>
+                <option value="minggu" {{ $filterType === 'minggu' ? 'selected' : '' }}>Minggu Ini</option>
+                <option value="bulan" {{ $filterType === 'bulan' ? 'selected' : '' }}>Per Bulan</option>
+                <option value="tahun" {{ $filterType === 'tahun' ? 'selected' : '' }}>Per Tahun</option>
+            </select>
+        </div>
+
+        <!-- Month Dropdown Container -->
+        <div id="month_wrapper" class="flex items-center gap-2 {{ $filterType === 'bulan' ? '' : 'hidden' }}">
+            <label for="filter_month" class="text-xs font-bold text-gray-700">Bulan:</label>
+            <select name="filter_month" id="filter_month" onchange="document.getElementById('filter-form').submit()" class="shadow-sm border border-gray-300 rounded-lg py-1.5 px-3 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                @foreach($bulanIndo as $num => $name)
+                    <option value="{{ $num }}" {{ $filterMonth == $num ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Year Dropdown Container -->
+        <div id="year_wrapper" class="flex items-center gap-2 {{ ($filterType === 'bulan' || $filterType === 'tahun') ? '' : 'hidden' }}">
+            <label for="filter_year" class="text-xs font-bold text-gray-700">Tahun:</label>
+            <select name="filter_year" id="filter_year" onchange="document.getElementById('filter-form').submit()" class="shadow-sm border border-gray-300 rounded-lg py-1.5 px-3 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                @for($y = date('Y') - 2; $y <= date('Y') + 5; $y++)
+                    <option value="{{ $y }}" {{ $filterYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                @endfor
+            </select>
+        </div>
     </form>
     
     <div class="flex items-center gap-2">
-        <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-1.5 px-4 rounded-lg border border-slate-200 transition duration-200 flex items-center gap-1.5 text-sm cursor-pointer">
+        <button onclick="printLaporan()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-1.5 px-4 rounded-lg border border-slate-200 transition duration-200 flex items-center gap-1.5 text-xs cursor-pointer">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
             Cetak Laporan
         </button>
-        <a href="{{ route('admin.reports.index', ['filter' => $filter, 'export' => 'csv']) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-4 rounded-lg shadow-sm transition duration-200 flex items-center gap-1.5 text-sm">
+        <a href="{{ route('admin.reports.index', ['filter_type' => $filterType, 'filter_month' => $filterMonth, 'filter_year' => $filterYear, 'export' => 'csv']) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-4 rounded-lg shadow-sm transition duration-200 flex items-center gap-1.5 text-xs">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             Export Excel (CSV)
         </a>
@@ -45,7 +83,22 @@
 
 <div class="bg-white shadow-md rounded-lg overflow-hidden reports-print-element">
     <div class="p-4 border-b border-gray-200 bg-gray-50 no-print">
-        <p class="text-sm text-gray-600">Menampilkan data transaksi penjualan periode: <strong>@if($filter === 'hari') Hari Ini @elseif($filter === 'minggu') Minggu Ini @elseif($filter === 'bulan') Bulan Ini @else Semua Penjualan @endif</strong>.</p>
+        <p class="text-sm text-gray-600">
+            Menampilkan data transaksi penjualan periode: 
+            <strong>
+                @if($filterType === 'hari') 
+                    Hari Ini 
+                @elseif($filterType === 'minggu') 
+                    Minggu Ini 
+                @elseif($filterType === 'bulan') 
+                    Bulan {{ $bulanIndo[$filterMonth] ?? $filterMonth }} {{ $filterYear }}
+                @elseif($filterType === 'tahun') 
+                    Tahun {{ $filterYear }}
+                @else 
+                    Semua Penjualan 
+                @endif
+            </strong>.
+        </p>
     </div>
     <table class="min-w-full leading-normal">
         <thead>
@@ -276,6 +329,27 @@
 </style>
 
 <script>
+    function toggleFilterInputs() {
+        const filterType = document.getElementById('filter_type').value;
+        const monthWrapper = document.getElementById('month_wrapper');
+        const yearWrapper = document.getElementById('year_wrapper');
+
+        if (filterType === 'bulan') {
+            monthWrapper.classList.remove('hidden');
+            yearWrapper.classList.remove('hidden');
+        } else if (filterType === 'tahun') {
+            monthWrapper.classList.add('hidden');
+            yearWrapper.classList.remove('hidden');
+        } else {
+            // Semua/Hari/Minggu: langsung submit tanpa perlu pilih bulan/tahun
+            monthWrapper.classList.add('hidden');
+            yearWrapper.classList.add('hidden');
+            document.getElementById('filter-form').submit();
+            return;
+        }
+        // Untuk bulan/tahun: tunggu user pilih nilai bulan/tahun dulu (auto-submit di dropdown masing-masing)
+    }
+
     function showReceipt(id) {
         document.getElementById('receiptModal-' + id).classList.remove('hidden');
     }
@@ -302,5 +376,44 @@
             document.body.classList.remove('printing-receipt');
         }, 500);
     }
+    function printLaporan() {
+        // Ambil nilai filter yang sedang dipilih di dropdown
+        const filterType  = document.getElementById('filter_type').value;
+        const filterMonth = document.getElementById('filter_month')?.value ?? '';
+        const filterYear  = document.getElementById('filter_year')?.value ?? '';
+
+        // Bangun URL dengan filter aktif + flag autoprint
+        const url = new URL(window.location.href);
+        url.searchParams.set('filter_type', filterType);
+        url.searchParams.set('filter_month', filterMonth);
+        url.searchParams.set('filter_year', filterYear);
+        url.searchParams.delete('export');
+        url.searchParams.set('autoprint', '1');
+
+        // Redirect ke halaman dengan data ter-filter, lalu auto-print
+        window.location.href = url.toString();
+    }
+
+    // Auto-print saat halaman dimuat dengan flag ?autoprint=1
+    document.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('autoprint') === '1') {
+            // Isi timestamp cetak dengan waktu sekarang
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const tgl = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear();
+            const jam = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+            const el = document.getElementById('print-timestamp');
+            if (el) el.textContent = tgl + ' ' + jam;
+
+            // Hapus flag dari URL (biar tidak loop) lalu print
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('autoprint');
+            window.history.replaceState({}, '', cleanUrl.toString());
+
+            // Tunda sedikit agar halaman selesai render
+            setTimeout(() => window.print(), 400);
+        }
+    });
 </script>
 @endsection

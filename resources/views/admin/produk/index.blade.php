@@ -5,13 +5,13 @@
 @section('content')
 <div class="print-header hidden mb-6 text-center">
     <h1 class="text-2xl font-bold text-gray-800">Laporan Stok Barang (POS Master)</h1>
-    <p class="text-sm text-gray-500">Dicetak pada: {{ now()->format('d/m/Y H:i') }}</p>
+    <p class="text-sm text-gray-500">Dicetak pada: <span id="produk-print-timestamp"></span></p>
 </div>
 
 <div class="mb-4 flex justify-between items-center no-print">
     <h2 class="text-xl font-semibold text-gray-800">Daftar Barang</h2>
     <div class="flex gap-2">
-        <button onclick="window.print()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-4 rounded shadow flex items-center gap-1.5 transition cursor-pointer text-sm">
+        <button onclick="printBarang()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-4 rounded shadow flex items-center gap-1.5 transition cursor-pointer text-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
             Cetak Barang
         </button>
@@ -132,4 +132,16 @@
         display: none;
     }
 </style>
+
+<script>
+    function printBarang() {
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const tgl = pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear();
+        const jam = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+        const el = document.getElementById('produk-print-timestamp');
+        if (el) el.textContent = tgl + ' ' + jam;
+        window.print();
+    }
+</script>
 @endsection

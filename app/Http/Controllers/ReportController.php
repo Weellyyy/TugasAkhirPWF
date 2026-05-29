@@ -11,28 +11,40 @@ class ReportController extends Controller
     {
         $query = Transaksi::with(['kasir', 'detail.produk'])->orderBy('created_at', 'desc');
 
-        $filter = $request->get('filter', 'semua');
-        if ($filter === 'hari') {
+        $filterType = $request->get('filter_type', 'semua');
+        $filterMonth = $request->get('filter_month', date('n'));
+        $filterYear = $request->get('filter_year', date('Y'));
+
+        if ($filterType === 'hari') {
             $query->whereDate('created_at', today());
-        } elseif ($filter === 'minggu') {
+        } elseif ($filterType === 'minggu') {
             $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
-        } elseif ($filter === 'bulan') {
-            $query->whereMonth('created_at', now()->month)
-                  ->whereYear('created_at', now()->year);
+        } elseif ($filterType === 'bulan') {
+            $query->whereMonth('created_at', $filterMonth)
+                  ->whereYear('created_at', $filterYear);
+        } elseif ($filterType === 'tahun') {
+            $query->whereYear('created_at', $filterYear);
         }
 
         $transaksis = $query->get();
 
         if ($request->get('export') === 'csv') {
-            return $this->exportCsv($transaksis, $filter);
+            return $this->exportCsv($transaksis, $filterType, $filterMonth, $filterYear);
         }
 
-        return view('admin.reports.index', compact('transaksis', 'filter'));
+        return view('admin.reports.index', compact('transaksis', 'filterType', 'filterMonth', 'filterYear'));
     }
 
-    private function exportCsv($transaksis, $filter)
+    private function exportCsv($transaksis, $filterType, $filterMonth, $filterYear)
     {
-        $filename = "laporan-penjualan-" . $filter . "-" . date('Y-m-d') . ".csv";
+        $periodString = $filterType;
+        if ($filterType === 'bulan') {
+            $periodString .= "-" . $filterMonth . "-" . $filterYear;
+        } elseif ($filterType === 'tahun') {
+            $periodString .= "-" . $filterYear;
+        }
+
+        $filename = "laporan-penjualan-" . $periodString . "-" . date('Y-m-d') . ".csv";
         $headers = [
             "Content-type" => "text/csv; charset=UTF-8",
             "Content-Disposition" => "attachment; filename=$filename",

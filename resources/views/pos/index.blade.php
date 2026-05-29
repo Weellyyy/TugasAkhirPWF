@@ -54,7 +54,12 @@
     <!-- Header -->
     <header class="bg-white shadow-sm py-4 px-6 flex justify-between items-center z-10">
         <h1 class="text-2xl font-bold text-blue-600">POS <span class="text-gray-800">Kasir</span></h1>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-6">
+            <!-- Realtime Clock -->
+            <div class="text-center">
+                <div id="pos-clock" class="text-xl font-black text-gray-800 tabular-nums leading-none"></div>
+                <div id="pos-date" class="text-xs text-gray-400 mt-0.5"></div>
+            </div>
             <span class="text-gray-600 font-medium">Kasir: {{ auth()->user()->nama }}</span>
             @if(auth()->user()->role === 'admin')
                 <a href="{{ route('admin.dashboard') }}" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold py-1.5 px-4 rounded transition duration-200 border border-blue-200">
@@ -69,6 +74,28 @@
             </form>
         </div>
     </header>
+    <script>
+        (function() {
+            const hariIndo = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+            const bulanIndo = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+            function updatePosClock() {
+                const now = new Date();
+                const jam = String(now.getHours()).padStart(2,'0');
+                const menit = String(now.getMinutes()).padStart(2,'0');
+                const detik = String(now.getSeconds()).padStart(2,'0');
+                const hari = hariIndo[now.getDay()];
+                const tgl = now.getDate();
+                const bulan = bulanIndo[now.getMonth()];
+                const tahun = now.getFullYear();
+                const clockEl = document.getElementById('pos-clock');
+                const dateEl = document.getElementById('pos-date');
+                if (clockEl) clockEl.textContent = jam + ':' + menit + ':' + detik;
+                if (dateEl) dateEl.textContent = hari + ', ' + tgl + ' ' + bulan + ' ' + tahun;
+            }
+            updatePosClock();
+            setInterval(updatePosClock, 1000);
+        })();
+    </script>
 
     @if(session('success'))
     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
