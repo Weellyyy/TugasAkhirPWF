@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', 'Manajemen User')
+@section('title', 'Manajemen Kasir')
 
 @section('content')
 <div class="mb-4 flex justify-between items-center">
-    <h2 class="text-xl font-semibold text-gray-800">Daftar Pengguna</h2>
+    <h2 class="text-xl font-semibold text-gray-800">Daftar Kasir / Pengguna</h2>
     <a href="{{ route('admin.users.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow">
-        + Tambah User
+        + Tambah Kasir / Pengguna
     </a>
 </div>
 
@@ -25,20 +25,30 @@
     <table class="min-w-full leading-normal">
         <thead>
             <tr>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
                 <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama</th>
                 <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Username</th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
                 <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                 <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
             </tr>
         </thead>
         <tbody>
             @foreach($users as $user)
             <tr>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-gray-500 font-bold">#{{ $user->id }}</td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm font-medium text-gray-900">{{ $user->nama }}</td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-gray-700">{{ $user->username }}</td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-gray-700">{{ $user->email }}</td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
                         {{ ucfirst($user->role) }}
+                    </span>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $user->status === 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ $user->status }}
                     </span>
                 </td>
                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">

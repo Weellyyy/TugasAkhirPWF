@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('username')->unique();
+            $table->string('email')->unique();
             $table->string('password');
             $table->enum('role', ['admin', 'kasir'])->default('kasir');
+            $table->enum('status', ['Aktif', 'Nonaktif'])->default('Aktif');
             $table->rememberToken();
             $table->timestamps();
         });

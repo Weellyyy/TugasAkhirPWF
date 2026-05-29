@@ -6,6 +6,29 @@
     <title>POS System</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-receipt, #printable-receipt * {
+                visibility: visible;
+            }
+            #printable-receipt {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-100 h-screen flex flex-col overflow-hidden" x-data="posApp()">
 
@@ -14,6 +37,11 @@
         <h1 class="text-2xl font-bold text-blue-600">POS <span class="text-gray-800">Kasir</span></h1>
         <div class="flex items-center gap-4">
             <span class="text-gray-600 font-medium">Kasir: {{ auth()->user()->nama }}</span>
+            @if(auth()->user()->role === 'admin')
+                <a href="{{ route('admin.dashboard') }}" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold py-1.5 px-4 rounded transition duration-200 border border-blue-200">
+                    Admin Panel
+                </a>
+            @endif
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="bg-red-100 hover:bg-red-200 text-red-600 font-semibold py-1.5 px-4 rounded transition duration-200">
@@ -243,5 +271,99 @@
             }
         }
     </script>
+
+    @if($receipt)
+        <!-- Receipt Modal -->
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm no-print" id="receiptModal">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-[420px] flex flex-col relative border border-gray-100 overflow-hidden mx-4">
+                <!-- Close Button (X) -->
+                <button onclick="document.getElementById('receiptModal').remove()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-[#f1f5f9] hover:bg-[#e2e8f0] flex items-center justify-center text-slate-500 hover:text-slate-700 transition duration-200 z-20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+
+                <!-- Printable Area -->
+                <div id="printable-receipt" class="bg-white font-sans text-gray-800 p-8 pb-5">
+                    <!-- Store Header -->
+                    <div class="text-center mt-3 mb-5">
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight">POS Master</h2>
+                        <p class="text-xs text-slate-400 mt-1">Jl. Sudirman No. 123, Jakarta Raya</p>
+                        <p class="text-xs text-slate-400">Telp: 021-555-0198</p>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="border-t border-dotted border-slate-300 my-4"></div>
+
+                    <!-- Meta Info -->
+                    <div class="flex flex-col gap-2.5 text-xs mb-4">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400 font-medium">No. Transaksi:</span>
+                            <span class="font-bold text-slate-800">TRX-{{ sprintf('%04d', $receipt->id) }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400 font-medium">Tanggal:</span>
+                            <span class="font-bold text-slate-800">{{ $receipt->created_at->format('j/n/Y, H.i.s') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400 font-medium">Kasir:</span>
+                            <span class="font-bold text-slate-800">{{ $receipt->kasir->nama ?? 'Unknown' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="border-t border-dotted border-slate-300 my-4"></div>
+
+                    <!-- Items List -->
+                    <div class="flex flex-col gap-4 mb-4">
+                        @foreach($receipt->detail as $d)
+                            <div class="flex flex-col">
+                                <div class="flex justify-between font-bold text-slate-800 text-sm">
+                                    <span>{{ $d->produk->nama_produk ?? 'Produk Dihapus' }}</span>
+                                    <span>Rp {{ number_format($d->subtotal, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="text-xs text-slate-400 mt-0.5 font-medium">
+                                    {{ $d->jumlah }} x Rp {{ number_format($d->harga, 0, ',', '.') }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="border-t border-dotted border-slate-300 my-4"></div>
+
+                    <!-- Grand Total -->
+                    <div class="flex justify-between items-center py-1 mb-4">
+                        <span class="font-extrabold text-slate-800 tracking-wide text-sm">GRAND TOTAL:</span>
+                        <span class="text-xl font-black text-[#6366f1]">Rp {{ number_format($receipt->total_harga, 0, ',', '.') }}</span>
+                    </div>
+
+                    <!-- Payment Method Card -->
+                    <div class="bg-[#f8fafc] rounded-2xl p-4 flex justify-between items-center border border-[#f1f5f9] mb-5">
+                        <span class="text-slate-400 text-xs font-semibold">Metode Pembayaran</span>
+                        <span class="font-black text-[#6366f1] text-xs">
+                            {{ $receipt->metode_pembayaran === 'Cash' ? 'Tunai / Cash' : 'QRIS' }}
+                        </span>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="border-t border-dotted border-slate-300 my-4"></div>
+
+                    <!-- Footer -->
+                    <div class="text-center text-xs text-slate-400 font-medium py-2">
+                        <p class="mb-1">Salinan Struk Transaksi</p>
+                        <p>Terima kasih atas kunjungan Anda.</p>
+                    </div>
+                </div>
+
+                <!-- Action Button at Bottom -->
+                <div class="bg-[#f8fafc] p-6 border-t border-slate-100 no-print">
+                    <button onclick="window.print()" class="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-extrabold py-3.5 px-4 rounded-2xl shadow-sm transition duration-200 flex items-center justify-center gap-2 text-xs tracking-wider">
+                        <!-- Printer Icon -->
+                        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        CETAK ULANG STRUK
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </body>
 </html>

@@ -20,18 +20,26 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        $user = \App\Models\User::where('username', $credentials['username'])->first();
+        
+        if ($user && $user->status !== 'Aktif') {
+            return back()->withErrors([
+                'username' => 'Akun Anda dinonaktifkan. Silakan hubungi admin.',
+            ])->onlyInput('username');
+        }
+
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
             if (Auth::user()->role === 'admin') {
                 return redirect()->intended('admin/dashboard');
             }
-            
+
             return redirect()->intended('pos');
         }
 
         return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
+            'username' => 'Username atau password salah.',
         ])->onlyInput('username');
     }
 
