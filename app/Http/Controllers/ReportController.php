@@ -26,13 +26,23 @@ class ReportController extends Controller
             $query->whereYear('created_at', $filterYear);
         }
 
-        $transaksis = $query->get();
+        $totalPendapatan = $query->sum('total_harga');
+        $jumlahTransaksi = $query->count();
+        
+        $transaksis = $query->paginate(10);
 
         if ($request->get('export') === 'csv') {
-            return $this->exportCsv($transaksis, $filterType, $filterMonth, $filterYear);
+            // Re-fetch all without pagination for CSV
+            $allTransaksis = Transaksi::with(['kasir', 'detail.produk'])->orderBy('created_at', 'desc');
+            if ($filterType === 'hari') $allTransaksis->whereDate('created_at', today());
+            elseif ($filterType === 'minggu') $allTransaksis->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+            elseif ($filterType === 'bulan') $allTransaksis->whereMonth('created_at', $filterMonth)->whereYear('created_at', $filterYear);
+            elseif ($filterType === 'tahun') $allTransaksis->whereYear('created_at', $filterYear);
+            
+            return $this->exportCsv($allTransaksis->get(), $filterType, $filterMonth, $filterYear);
         }
 
-        return view('admin.reports.index', compact('transaksis', 'filterType', 'filterMonth', 'filterYear'));
+        return view('admin.reports.index', compact('transaksis', 'filterType', 'filterMonth', 'filterYear', 'totalPendapatan', 'jumlahTransaksi'));
     }
 
     private function exportCsv($transaksis, $filterType, $filterMonth, $filterYear)

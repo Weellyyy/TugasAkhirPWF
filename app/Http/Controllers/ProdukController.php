@@ -11,8 +11,12 @@ class ProdukController extends Controller
 {
     public function index()
     {
-        $produks = Produk::with('kategori')->get();
-        return view('admin.produk.index', compact('produks'));
+        $produks = Produk::with('kategori')->paginate(10);
+        $totalSku = Produk::count();
+        $stokAman = Produk::where('stok', '>', 5)->count();
+        $stokMenipis = Produk::where('stok', '<=', 5)->count();
+        $kategoris = Kategori::all();
+        return view('admin.produk.index', compact('produks', 'totalSku', 'stokAman', 'stokMenipis', 'kategoris'));
     }
 
     public function create()

@@ -10,8 +10,12 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
-        return view('admin.users.index', compact('users'));
+        $users = User::paginate(10);
+        $totalKasir = User::count();
+        $administratorCount = User::where('role', 'admin')->count();
+        $aktifCount = User::where('status', 'Aktif')->count();
+        
+        return view('admin.users.index', compact('users', 'totalKasir', 'administratorCount', 'aktifCount'));
     }
 
     public function create()

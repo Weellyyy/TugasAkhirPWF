@@ -72,7 +72,9 @@ class PosController extends Controller
             DB::commit();
             return redirect()->route('pos')
                 ->with('success', 'Transaksi berhasil disimpan!')
-                ->with('show_receipt_id', $transaksi->id);
+                ->with('show_receipt_id', $transaksi->id)
+                ->with('uang_bayar', $request->input('uang_bayar', 0))
+                ->with('kembalian', $request->input('kembalian', 0));
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal memproses transaksi: ' . $e->getMessage());
