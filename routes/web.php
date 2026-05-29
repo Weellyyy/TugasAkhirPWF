@@ -32,6 +32,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::resource('/kasir', \App\Http\Controllers\UserController::class)->names('admin.users');
-    Route::resource('/barang', \App\Http\Controllers\ProdukController::class)->names('admin.produk');
+    Route::resource('/kasir', \App\Http\Controllers\UserController::class)
+        ->names('admin.users')
+        ->parameters(['kasir' => 'user']);
+    Route::resource('/barang', \App\Http\Controllers\ProdukController::class)
+        ->names('admin.produk')
+        ->parameters(['barang' => 'produk']);
 });

@@ -14,14 +14,30 @@
             POS <span class="text-teal-400">Admin</span>
         </div>
         <nav class="flex-grow pt-4 flex flex-col gap-2">
-            <a href="{{ route('admin.dashboard') }}" class="px-6 py-3 hover:bg-gray-800 transition duration-200">Dashboard</a>
-            <a href="{{ route('pos') }}" class="px-6 py-3 hover:bg-gray-800 transition duration-200 text-teal-400 font-semibold bg-gray-950 border-l-4 border-teal-500">
+            <a href="{{ route('admin.dashboard') }}" 
+               class="px-6 py-3 transition duration-200 {{ request()->routeIs('admin.dashboard') ? 'text-teal-400 font-semibold bg-gray-950 border-l-4 border-teal-500' : 'text-gray-300 hover:text-white hover:bg-gray-800' }}">
+                Dashboard
+            </a>
+            <a href="{{ route('pos') }}" 
+               class="px-6 py-3 transition duration-200 text-gray-300 hover:text-white hover:bg-gray-800 border-l-4 border-transparent hover:border-teal-500">
                 Buka Aplikasi POS
             </a>
-            <a href="{{ route('admin.kategori.index') }}" class="px-6 py-3 hover:bg-gray-800 transition duration-200">Kategori</a>
-            <a href="{{ route('admin.produk.index') }}" class="px-6 py-3 hover:bg-gray-800 transition duration-200">Stok Barang</a>
-            <a href="{{ route('admin.users.index') }}" class="px-6 py-3 hover:bg-gray-800 transition duration-200">Manajemen Kasir</a>
-            <a href="{{ route('admin.reports.index') }}" class="px-6 py-3 hover:bg-gray-800 transition duration-200">Laporan</a>
+            <a href="{{ route('admin.kategori.index') }}" 
+               class="px-6 py-3 transition duration-200 {{ request()->routeIs('admin.kategori.*') ? 'text-teal-400 font-semibold bg-gray-950 border-l-4 border-teal-500' : 'text-gray-300 hover:text-white hover:bg-gray-800' }}">
+                Kategori
+            </a>
+            <a href="{{ route('admin.produk.index') }}" 
+               class="px-6 py-3 transition duration-200 {{ request()->routeIs('admin.produk.*') ? 'text-teal-400 font-semibold bg-gray-950 border-l-4 border-teal-500' : 'text-gray-300 hover:text-white hover:bg-gray-800' }}">
+                Stok Barang
+            </a>
+            <a href="{{ route('admin.users.index') }}" 
+               class="px-6 py-3 transition duration-200 {{ request()->routeIs('admin.users.*') ? 'text-teal-400 font-semibold bg-gray-950 border-l-4 border-teal-500' : 'text-gray-300 hover:text-white hover:bg-gray-800' }}">
+                Manajemen Kasir
+            </a>
+            <a href="{{ route('admin.reports.index') }}" 
+               class="px-6 py-3 transition duration-200 {{ request()->routeIs('admin.reports.*') ? 'text-teal-400 font-semibold bg-gray-950 border-l-4 border-teal-500' : 'text-gray-300 hover:text-white hover:bg-gray-800' }}">
+                Laporan
+            </a>
         </nav>
         <div class="p-4 border-t border-gray-800">
             <form action="{{ route('logout') }}" method="POST">
