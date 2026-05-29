@@ -311,14 +311,15 @@
                 <td><span class="prod-name">{{ $p->nama_produk }}</span></td>
                 <td>
                     @php
-                        $katLower = strtolower($p->kategori->nama_kategori ?? '');
-                        $badgeClass = str_contains($katLower,'makan') ? 'makanan' : (str_contains($katLower,'minum') ? 'minuman' : 'default');
+                        $katName = $p->kategori->nama_kategori ?? '-';
+                        $colors = ['bg-amber-100 text-amber-700', 'bg-blue-100 text-blue-700', 'bg-emerald-100 text-emerald-700', 'bg-purple-100 text-purple-700', 'bg-pink-100 text-pink-700', 'bg-indigo-100 text-indigo-700', 'bg-rose-100 text-rose-700', 'bg-cyan-100 text-cyan-700'];
+                        $colorClass = $colors[abs(crc32($katName)) % count($colors)];
                     @endphp
-                    <span class="badge-kategori {{ $badgeClass }}">{{ $p->kategori->nama_kategori ?? '-' }}</span>
+                    <span class="badge-kategori {{ $colorClass }}">{{ $katName }}</span>
                 </td>
                 <td><span class="price-text">Rp {{ number_format($p->harga, 0, ',', '.') }}</span></td>
                 <td>
-                    <span class="badge-stok {{ $p->stok <= 5 ? 'low' : 'safe' }}">{{ $p->stok }}</span>
+                    <span class="badge-stok {{ $p->stok <= 30 ? 'low' : 'safe' }}">{{ $p->stok }}</span>
                 </td>
                 <td><span class="lokasi-text">{{ $p->lokasi }}</span></td>
                 <td class="no-print">

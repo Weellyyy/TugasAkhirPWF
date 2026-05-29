@@ -14,7 +14,7 @@ class ProdukController extends Controller
         $produks = Produk::with('kategori')->paginate(10);
         $totalSku = Produk::count();
         $stokAman = Produk::where('stok', '>', 5)->count();
-        $stokMenipis = Produk::where('stok', '<=', 5)->count();
+        $stokMenipis = Produk::where('stok', '<=', 30)->count();
         $kategoris = Kategori::all();
         return view('admin.produk.index', compact('produks', 'totalSku', 'stokAman', 'stokMenipis', 'kategoris'));
     }

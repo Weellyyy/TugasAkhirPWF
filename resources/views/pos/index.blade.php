@@ -183,9 +183,10 @@
                                 </template>
                                 
                                 <!-- Stock Badge -->
-                                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-extrabold text-gray-700 shadow-sm border border-white/50">
-                                    <span x-show="produk.stok > 90" class="text-green-600">Stok Banyak</span>
-                                    <span x-show="produk.stok <= 90">Stok: <span x-text="produk.stok"></span></span>
+                                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-extrabold shadow-sm border border-white/50">
+                                    <span :class="produk.stok > 30 ? 'text-green-600' : produk.stok > 10 ? 'text-amber-500' : 'text-red-500'">
+                                        Stok: <span x-text="produk.stok"></span>
+                                    </span>
                                 </div>
                             </div>
                             
