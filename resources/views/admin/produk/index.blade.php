@@ -3,11 +3,22 @@
 @section('title', 'Manajemen Stok Barang')
 
 @section('content')
-<div class="mb-4 flex justify-between items-center">
+<div class="print-header hidden mb-6 text-center">
+    <h1 class="text-2xl font-bold text-gray-800">Laporan Stok Barang (POS Master)</h1>
+    <p class="text-sm text-gray-500">Dicetak pada: {{ now()->format('d/m/Y H:i') }}</p>
+</div>
+
+<div class="mb-4 flex justify-between items-center no-print">
     <h2 class="text-xl font-semibold text-gray-800">Daftar Barang</h2>
-    <a href="{{ route('admin.produk.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow">
-        + Tambah Barang
-    </a>
+    <div class="flex gap-2">
+        <button onclick="window.print()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-4 rounded shadow flex items-center gap-1.5 transition cursor-pointer text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Cetak Barang
+        </button>
+        <a href="{{ route('admin.produk.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded shadow transition text-sm">
+            + Tambah Barang
+        </a>
+    </div>
 </div>
 
 @if(session('success'))
@@ -68,4 +79,56 @@
         </tbody>
     </table>
 </div>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden !important;
+        }
+        .print-header, .print-header *,
+        .bg-white, .bg-white *,
+        table, table * {
+            visibility: visible !important;
+        }
+        .print-header {
+            display: block !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+        }
+        .bg-white {
+            position: absolute !important;
+            top: 80px !important;
+            left: 0 !important;
+            width: 100% !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .no-print, th:last-child, td:last-child {
+            display: none !important;
+        }
+        body {
+            background-color: white !important;
+            color: black !important;
+        }
+        main {
+            padding: 0 !important;
+            margin: 0 !important;
+            background-color: white !important;
+        }
+        table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+        }
+        th, td {
+            border: 1px solid #cbd5e1 !important;
+        }
+    }
+    .print-header {
+        display: none;
+    }
+</style>
 @endsection

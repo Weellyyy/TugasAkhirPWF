@@ -9,7 +9,7 @@
 <body class="bg-gray-100 font-sans leading-normal tracking-normal flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
-    <div class="bg-gray-900 shadow-xl h-screen w-64 text-white flex flex-col hidden md:flex">
+    <div class="bg-gray-900 shadow-xl h-screen w-64 text-white flex flex-col hidden md:flex no-print">
         <div class="p-6 text-2xl font-bold tracking-wider text-center border-b border-gray-800">
             POS <span class="text-teal-400">Admin</span>
         </div>
@@ -52,7 +52,7 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col h-screen overflow-y-auto">
         <!-- Header -->
-        <header class="bg-white shadow py-4 px-6 flex justify-between items-center">
+        <header class="bg-white shadow py-4 px-6 flex justify-between items-center no-print">
             <h1 class="text-2xl font-semibold text-gray-800">@yield('title')</h1>
             <div class="flex items-center text-gray-600">
                 Halo, {{ auth()->user()->nama }}
