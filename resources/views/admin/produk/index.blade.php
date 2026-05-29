@@ -27,7 +27,7 @@
 </div>
 @endif
 
-<div class="bg-white shadow-md rounded-lg overflow-hidden">
+<div class="bg-white shadow-md rounded-lg overflow-hidden products-table-container">
     <table class="min-w-full leading-normal">
         <thead>
             <tr>
@@ -86,7 +86,7 @@
             visibility: hidden !important;
         }
         .print-header, .print-header *,
-        .bg-white, .bg-white *,
+        .products-table-container, .products-table-container *,
         table, table * {
             visibility: visible !important;
         }
@@ -97,7 +97,7 @@
             left: 0 !important;
             width: 100% !important;
         }
-        .bg-white {
+        .products-table-container {
             position: absolute !important;
             top: 80px !important;
             left: 0 !important;
@@ -106,6 +106,7 @@
             border: none !important;
             padding: 0 !important;
             margin: 0 !important;
+            background: white !important;
         }
         .no-print, th:last-child, td:last-child {
             display: none !important;
