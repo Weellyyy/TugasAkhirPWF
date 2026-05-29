@@ -3,13 +3,49 @@
 @section('title', 'Laporan Penjualan')
 
 @section('content')
-<div class="mb-4 no-print">
+<div class="print-header-report hidden mb-6 text-center">
+    <h1 class="text-2xl font-bold text-gray-800">Laporan Penjualan (POS Master)</h1>
+    <p class="text-sm text-gray-500">
+        Periode: 
+        @if($filter === 'hari') Hari Ini @elseif($filter === 'minggu') Minggu Ini @elseif($filter === 'bulan') Bulan Ini @else Semua Penjualan @endif
+    </p>
+    <p class="text-xs text-gray-400 mt-1">Dicetak pada: {{ now()->format('d/m/Y H:i') }}</p>
+</div>
+
+<!-- Filters & Export/Print Actions -->
+<div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 no-print">
+    <form action="{{ route('admin.reports.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
+        <label for="filter" class="text-sm font-bold text-gray-700">Periode:</label>
+        <select name="filter" id="filter" class="shadow-sm border border-gray-300 rounded-lg py-1.5 px-3 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <option value="semua" {{ $filter === 'semua' ? 'selected' : '' }}>Semua Penjualan</option>
+            <option value="hari" {{ $filter === 'hari' ? 'selected' : '' }}>Hari Ini</option>
+            <option value="minggu" {{ $filter === 'minggu' ? 'selected' : '' }}>Minggu Ini</option>
+            <option value="bulan" {{ $filter === 'bulan' ? 'selected' : '' }}>Bulan Ini</option>
+        </select>
+        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 px-4 rounded-lg shadow-sm transition duration-200 text-sm cursor-pointer">
+            Filter
+        </button>
+    </form>
+    
+    <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-1.5 px-4 rounded-lg border border-slate-200 transition duration-200 flex items-center gap-1.5 text-sm cursor-pointer">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Cetak Laporan
+        </button>
+        <a href="{{ route('admin.reports.index', ['filter' => $filter, 'export' => 'csv']) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-4 rounded-lg shadow-sm transition duration-200 flex items-center gap-1.5 text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Export Excel (CSV)
+        </a>
+    </div>
+</div>
+
+<div class="mb-4 reports-print-element">
     <h2 class="text-xl font-semibold text-gray-800">Detail Transaksi Penjualan</h2>
 </div>
 
-<div class="bg-white shadow-md rounded-lg overflow-hidden no-print">
-    <div class="p-4 border-b border-gray-200 bg-gray-50">
-        <p class="text-sm text-gray-600">Menampilkan semua data transaksi penjualan.</p>
+<div class="bg-white shadow-md rounded-lg overflow-hidden reports-print-element">
+    <div class="p-4 border-b border-gray-200 bg-gray-50 no-print">
+        <p class="text-sm text-gray-600">Menampilkan data transaksi penjualan periode: <strong>@if($filter === 'hari') Hari Ini @elseif($filter === 'minggu') Minggu Ini @elseif($filter === 'bulan') Bulan Ini @else Semua Penjualan @endif</strong>.</p>
     </div>
     <table class="min-w-full leading-normal">
         <thead>
@@ -171,6 +207,14 @@
         .bg-gray-900, header, .no-print {
             display: none !important;
         }
+        
+        /* Hide reports content if printing a receipt */
+        body.printing-receipt .reports-print-element,
+        body.printing-receipt .print-header-report {
+            display: none !important;
+        }
+        
+        /* If printing a receipt, format the active modal */
         .print-modal-active {
             display: block !important;
             position: fixed !important;
@@ -201,6 +245,33 @@
             padding: 0 !important;
             margin: 0 !important;
         }
+        
+        /* If printing the report itself, format it nicely */
+        body:not(.printing-receipt) .print-header-report {
+            display: block !important;
+            margin-bottom: 20px !important;
+        }
+        body:not(.printing-receipt) .reports-print-element {
+            box-shadow: none !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        body:not(.printing-receipt) table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+        }
+        body:not(.printing-receipt) th, 
+        body:not(.printing-receipt) td {
+            border: 1px solid #cbd5e1 !important;
+        }
+        /* Hide the actions column in report print */
+        body:not(.printing-receipt) th:last-child,
+        body:not(.printing-receipt) td:last-child {
+            display: none !important;
+        }
+    }
+    
+    .print-header-report {
+        display: none;
     }
 </style>
 
@@ -217,6 +288,9 @@
         const modal = document.getElementById('receiptModal-' + id);
         const receiptContent = document.getElementById('printable-receipt-' + id);
         
+        // Hide reports content from print layout
+        document.body.classList.add('printing-receipt');
+        
         modal.classList.add('print-modal-active');
         receiptContent.classList.add('print-receipt-active');
         
@@ -225,6 +299,7 @@
         setTimeout(() => {
             modal.classList.remove('print-modal-active');
             receiptContent.classList.remove('print-receipt-active');
+            document.body.classList.remove('printing-receipt');
         }, 500);
     }
 </script>
