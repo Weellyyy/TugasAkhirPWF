@@ -3,11 +3,11 @@
 @section('title', 'Laporan Penjualan')
 
 @section('content')
-<div class="mb-4">
+<div class="mb-4 no-print">
     <h2 class="text-xl font-semibold text-gray-800">Detail Transaksi Penjualan</h2>
 </div>
 
-<div class="bg-white shadow-md rounded-lg overflow-hidden">
+<div class="bg-white shadow-md rounded-lg overflow-hidden no-print">
     <div class="p-4 border-b border-gray-200 bg-gray-50">
         <p class="text-sm text-gray-600">Menampilkan semua data transaksi penjualan.</p>
     </div>
@@ -68,7 +68,7 @@
 
 @foreach($transaksis as $t)
     <!-- Receipt Modal for TRX-{{ $t->id }} -->
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm no-print hidden" id="receiptModal-{{ $t->id }}">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden" id="receiptModal-{{ $t->id }}">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-[420px] flex flex-col relative border border-gray-100 overflow-hidden mx-4 text-left">
             <!-- Close Button (X) -->
             <button onclick="hideReceipt({{ $t->id }})" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-[#f1f5f9] hover:bg-[#e2e8f0] flex items-center justify-center text-slate-500 hover:text-slate-700 transition duration-200 z-20">
@@ -162,24 +162,44 @@
 
 <style>
     @media print {
-        body * {
-            visibility: hidden !important;
+        html, body {
+            height: auto !important;
+            overflow: visible !important;
+            position: static !important;
+            background: white !important;
         }
-        .print-receipt-active, .print-receipt-active * {
-            visibility: visible !important;
+        .bg-gray-900, header, .no-print {
+            display: none !important;
         }
-        .print-receipt-active {
-            position: absolute !important;
-            left: 0 !important;
+        .print-modal-active {
+            display: block !important;
+            position: fixed !important;
             top: 0 !important;
+            left: 0 !important;
             width: 100% !important;
-            box-shadow: none !important;
-            border: none !important;
+            height: 100% !important;
+            background: white !important;
+            z-index: 9999 !important;
             padding: 0 !important;
             margin: 0 !important;
         }
-        .no-print {
-            display: none !important;
+        .print-modal-active > div {
+            box-shadow: none !important;
+            border: none !important;
+            background: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            border-radius: 0 !important;
+        }
+        .print-receipt-active {
+            box-shadow: none !important;
+            border: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
     }
 </style>
@@ -194,10 +214,16 @@
     }
 
     function printReceipt(id) {
+        const modal = document.getElementById('receiptModal-' + id);
         const receiptContent = document.getElementById('printable-receipt-' + id);
+        
+        modal.classList.add('print-modal-active');
         receiptContent.classList.add('print-receipt-active');
+        
         window.print();
+        
         setTimeout(() => {
+            modal.classList.remove('print-modal-active');
             receiptContent.classList.remove('print-receipt-active');
         }, 500);
     }

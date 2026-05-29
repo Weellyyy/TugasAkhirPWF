@@ -8,24 +8,43 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         @media print {
-            body * {
-                visibility: hidden;
+            header, .flex-1, .no-print {
+                display: none !important;
             }
-            #printable-receipt, #printable-receipt * {
-                visibility: visible;
-            }
-            #printable-receipt {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                box-shadow: none !important;
-                border: none !important;
+            .print-modal-active {
+                display: block !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: white !important;
+                z-index: 9999 !important;
                 padding: 0 !important;
                 margin: 0 !important;
             }
-            .no-print {
-                display: none !important;
+            .print-modal-active > div {
+                box-shadow: none !important;
+                border: none !important;
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                border-radius: 0 !important;
+            }
+            .print-receipt-active {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            html, body {
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
             }
         }
     </style>
@@ -274,7 +293,7 @@
 
     @if($receipt)
         <!-- Receipt Modal -->
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm no-print" id="receiptModal">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" id="receiptModal">
             <div class="bg-white rounded-3xl shadow-2xl w-full max-w-[420px] flex flex-col relative border border-gray-100 overflow-hidden mx-4">
                 <!-- Close Button (X) -->
                 <button onclick="document.getElementById('receiptModal').remove()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-[#f1f5f9] hover:bg-[#e2e8f0] flex items-center justify-center text-slate-500 hover:text-slate-700 transition duration-200 z-20">
@@ -356,7 +375,7 @@
 
                 <!-- Action Button at Bottom -->
                 <div class="bg-[#f8fafc] p-6 border-t border-slate-100 no-print">
-                    <button onclick="window.print()" class="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-extrabold py-3.5 px-4 rounded-2xl shadow-sm transition duration-200 flex items-center justify-center gap-2 text-xs tracking-wider">
+                    <button onclick="printReceipt()" class="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-extrabold py-3.5 px-4 rounded-2xl shadow-sm transition duration-200 flex items-center justify-center gap-2 text-xs tracking-wider">
                         <!-- Printer Icon -->
                         <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         CETAK ULANG STRUK
@@ -364,6 +383,23 @@
                 </div>
             </div>
         </div>
+
+        <script>
+            function printReceipt() {
+                const modal = document.getElementById('receiptModal');
+                const receiptContent = document.getElementById('printable-receipt');
+                
+                modal.classList.add('print-modal-active');
+                receiptContent.classList.add('print-receipt-active');
+                
+                window.print();
+                
+                setTimeout(() => {
+                    modal.classList.remove('print-modal-active');
+                    receiptContent.classList.remove('print-receipt-active');
+                }, 500);
+            }
+        </script>
     @endif
 </body>
 </html>
