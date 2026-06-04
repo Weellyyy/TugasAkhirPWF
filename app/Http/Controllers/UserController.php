@@ -10,8 +10,12 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
-        return view('admin.users.index', compact('users'));
+        $users = User::paginate(10);
+        $totalKasir = User::count();
+        $administratorCount = User::where('role', 'admin')->count();
+        $aktifCount = User::where('status', 'Aktif')->count();
+        
+        return view('admin.users.index', compact('users', 'totalKasir', 'administratorCount', 'aktifCount'));
     }
 
     public function create()
@@ -24,14 +28,16 @@ class UserController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'role' => 'required|in:admin,kasir',
+            'status' => 'required|in:Aktif,Nonaktif',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
         User::create($validated);
 
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan.');
+        return redirect()->route('admin.users.index')->with('success', 'Kasir / Pengguna berhasil ditambahkan.');
     }
 
     public function edit(User $user)
@@ -44,8 +50,10 @@ class UserController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6',
             'role' => 'required|in:admin,kasir',
+            'status' => 'required|in:Aktif,Nonaktif',
         ]);
 
         if ($request->filled('password')) {
@@ -55,7 +63,7 @@ class UserController extends Controller
         }
 
         $user->update($validated);
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil diupdate.');
+        return redirect()->route('admin.users.index')->with('success', 'Kasir / Pengguna berhasil diupdate.');
     }
 
     public function destroy(User $user)

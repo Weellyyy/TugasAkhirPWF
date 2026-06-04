@@ -17,7 +17,12 @@ class PosController extends Controller
         $produks = Produk::with('kategori')->where('stok', '>', 0)->get();
         $kategoris = Kategori::all();
         
-        return view('pos.index', compact('produks', 'kategoris'));
+        $receipt = null;
+        if (session('show_receipt_id')) {
+            $receipt = Transaksi::with(['kasir', 'detail.produk'])->find(session('show_receipt_id'));
+        }
+        
+        return view('pos.index', compact('produks', 'kategoris', 'receipt'));
     }
 
     public function checkout(Request $request)
@@ -65,7 +70,11 @@ class PosController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('pos')->with('success', 'Transaksi berhasil disimpan!');
+            return redirect()->route('pos')
+                ->with('success', 'Transaksi berhasil disimpan!')
+                ->with('show_receipt_id', $transaksi->id)
+                ->with('uang_bayar', $request->input('uang_bayar', 0))
+                ->with('kembalian', $request->input('kembalian', 0));
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal memproses transaksi: ' . $e->getMessage());

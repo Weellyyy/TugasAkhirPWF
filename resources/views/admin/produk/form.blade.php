@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', isset($produk) ? 'Edit Produk' : 'Tambah Produk')
+@section('title', isset($produk) ? 'Edit Barang' : 'Tambah Barang')
 
 @section('content')
 <div class="bg-white shadow-md rounded-lg p-6 max-w-2xl">
@@ -24,7 +24,13 @@
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="nama_produk">Nama Produk</label>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="sku">SKU</label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="sku" type="text" name="sku" value="{{ old('sku', $produk->sku ?? '') }}" required>
+            @error('sku') <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="nama_produk">Nama Barang</label>
             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="nama_produk" type="text" name="nama_produk" value="{{ old('nama_produk', $produk->nama_produk ?? '') }}" required>
             @error('nama_produk') <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p> @enderror
         </div>
@@ -40,6 +46,12 @@
                 <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="stok" type="number" name="stok" value="{{ old('stok', $produk->stok ?? '') }}" required>
                 @error('stok') <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p> @enderror
             </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="lokasi">Lokasi</label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="lokasi" type="text" name="lokasi" value="{{ old('lokasi', $produk->lokasi ?? '') }}" required>
+            @error('lokasi') <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p> @enderror
         </div>
 
         <div class="mb-6">

@@ -18,8 +18,13 @@ class DatabaseSeeder extends Seeder
         User::create([
             'nama' => 'Administrator',
             'username' => 'admin',
+            'email' => 'admin@pos.com',
             'password' => bcrypt('password'),
             'role' => 'admin',
+            'status' => 'Aktif',
         ]);
+
+        \App\Models\Kategori::firstOrCreate(['nama_kategori' => 'Makanan']);
+        \App\Models\Kategori::firstOrCreate(['nama_kategori' => 'Minuman']);
     }
 }

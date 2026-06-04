@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', isset($user) ? 'Edit User' : 'Tambah User')
+@section('title', isset($user) ? 'Edit Kasir / Pengguna' : 'Tambah Kasir / Pengguna')
 
 @section('content')
 <div class="bg-white shadow-md rounded-lg p-6 max-w-xl">
@@ -23,18 +23,33 @@
         </div>
 
         <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" name="email" value="{{ old('email', $user->email ?? '') }}" required>
+            @error('email') <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Password {{ isset($user) ? '(Kosongkan jika tidak diubah)' : '' }}</label>
             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" name="password" {{ isset($user) ? '' : 'required' }}>
             @error('password') <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p> @enderror
         </div>
 
-        <div class="mb-6">
+        <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="role">Role</label>
             <select name="role" id="role" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
                 <option value="kasir" {{ (old('role', $user->role ?? '')) == 'kasir' ? 'selected' : '' }}>Kasir</option>
                 <option value="admin" {{ (old('role', $user->role ?? '')) == 'admin' ? 'selected' : '' }}>Admin</option>
             </select>
             @error('role') <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="status">Status</label>
+            <select name="status" id="status" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                <option value="Aktif" {{ (old('status', $user->status ?? '')) == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                <option value="Nonaktif" {{ (old('status', $user->status ?? '')) == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+            </select>
+            @error('status') <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p> @enderror
         </div>
 
         <div class="flex items-center justify-between">
