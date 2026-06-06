@@ -364,7 +364,7 @@
 <script>
     const ROUTES = {
         store:  '{{ route('admin.users.store') }}',
-        update: (id) => `/admin/users/${id}`,
+        update: (id) => `/admin/kasir/${id}`,
     };
 
     function openModal(mode, id = null, nama = '', username = '', email = '', role = 'kasir', status = 'Aktif') {
