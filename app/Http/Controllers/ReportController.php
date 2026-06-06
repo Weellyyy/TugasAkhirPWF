@@ -95,4 +95,10 @@ class ReportController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    public function struk(Transaksi $transaksi)
+    {
+        $transaksi->load(['kasir', 'detail.produk']);
+        return view('admin.reports.struk', compact('transaksi'));
+    }
 }

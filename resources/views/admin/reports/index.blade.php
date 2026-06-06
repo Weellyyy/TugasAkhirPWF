@@ -143,6 +143,35 @@
         .table-card { box-shadow: none; border: none; }
         th, td { border: 1px solid #e5e7eb; }
     }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.45); backdrop-filter: blur(2px);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+        background: #f3f4f6; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        width: 100%; max-width: 380px; 
+        transform: scale(0.92) translateY(20px);
+        transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), opacity 0.2s; opacity: 0;
+        overflow: hidden;
+    }
+    .modal-overlay.open .modal-box { transform: scale(1) translateY(0); opacity: 1; }
+    .modal-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 20px; background: #fff; border-bottom: 1px solid #e5e7eb;
+    }
+    .modal-title { font-size: 15px; font-weight: 700; color: #111827; }
+    .modal-close {
+        width: 30px; height: 30px; border-radius: 8px; background: #f3f4f6; border: none; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; color: #6b7280; transition: background 0.2s;
+    }
+    .modal-close:hover { background: #e5e7eb; color: #111827; }
+    .modal-close svg { width: 16px; height: 16px; }
+    .modal-body { padding: 0; height: 500px; background: #f3f4f6;}
 </style>
 
 <div class="filter-card no-print">
@@ -249,7 +278,7 @@
                     </td>
                     <td class="td-total">Rp. {{ number_format($t->total_harga, 0, ',', '.') }}</td>
                     <td class="no-print">
-                        <a href="#" class="link-action" onclick="alert('Fitur cetak struk belum diimplementasikan.')">Struk</a>
+                        <a href="#" class="link-action" onclick="openStrukModal('{{ route('admin.reports.struk', $t->id) }}'); return false;">Struk</a>
                     </td>
                 </tr>
                 @empty
@@ -287,5 +316,38 @@
         <div class="summary-value">{{ number_format($jumlahTransaksi, 0, ',', '.') }} Transaksi</div>
     </div>
 </div>
+
+{{-- Modal Struk --}}
+<div class="modal-overlay no-print" id="strukModalOverlay" onclick="handleStrukOverlayClick(event)">
+    <div class="modal-box" id="strukModalBox">
+        <div class="modal-header">
+            <div class="modal-title">Struk Transaksi</div>
+            <button class="modal-close" onclick="closeStrukModal()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <iframe id="strukIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+function openStrukModal(url) {
+    document.getElementById('strukIframe').src = url;
+    document.getElementById('strukModalOverlay').classList.add('open');
+}
+function closeStrukModal() {
+    document.getElementById('strukModalOverlay').classList.remove('open');
+    document.getElementById('strukIframe').src = '';
+}
+function handleStrukOverlayClick(e) {
+    if (e.target === document.getElementById('strukModalOverlay')) closeStrukModal();
+}
+// Support escape key to close modal
+document.addEventListener('keydown', (e) => { 
+    if (e.key === 'Escape') closeStrukModal(); 
+});
+</script>
 
 @endsection

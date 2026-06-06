@@ -29,6 +29,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('/kategori', \App\Http\Controllers\KategoriController::class);
     Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{transaksi}/struk', [\App\Http\Controllers\ReportController::class, 'struk'])->name('reports.struk');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
