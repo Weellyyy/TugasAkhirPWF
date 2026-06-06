@@ -24,7 +24,11 @@ class DatabaseSeeder extends Seeder
             'status' => 'Aktif',
         ]);
 
-        \App\Models\Kategori::firstOrCreate(['nama_kategori' => 'Makanan']);
-        \App\Models\Kategori::firstOrCreate(['nama_kategori' => 'Minuman']);
+        // Jalankan seeder untuk data dummy
+        $this->call([
+            KategoriSeeder::class,
+            ProdukSeeder::class,
+            TransaksiSeeder::class,
+        ]);
     }
 }
